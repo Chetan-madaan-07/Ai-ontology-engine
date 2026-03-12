@@ -6,7 +6,7 @@ const cors = require('cors');
 // Importing services
 const { extractOntology } = require('./aiService');
 const { saveGraphData, getFullGraph } = require('./dbService');
-const { fetchNews } = require('./ingestionService');
+const { fetchAndCleanNews } = require('./ingestionService');
 
 const app = express();
 app.use(cors());
@@ -33,7 +33,7 @@ app.post('/api/ingest', async (req, res) => {
         
         // Step 1: Pawan's logic - Fetching real news
         console.log("Fetching news from GNews...");
-        const rawText = await fetchNews(topic);
+        const rawText = await fetchAndCleanNews(topic);
         
         if (!rawText || rawText.length < 50) {
             throw new Error("GNews se kuch nahi mila. Pawan ki API key check karo.");
