@@ -10,7 +10,6 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  */
 async function extractOntology(text) {
     try {
-        // Enforcing strict JSON output to prevent JSON.parse errors
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.5-flash",
             generationConfig: {
@@ -31,14 +30,20 @@ async function extractOntology(text) {
 
         console.log("AI is processing with gemini-2.5-flash... please wait.");
         const result = await model.generateContent(prompt);
-        
-        // Removed the unnecessary 'await'
-        const response = result.response; 
-        const jsonString = response.text().trim();
+        let jsonString = result.response.text().trim();
 
-        const parsedData = JSON.parse(jsonString);
-        console.log("✅ AI Extraction Successful! Nodes found:", parsedData.nodes.length);
-        return parsedData;
+        // FIX: Strip potential Markdown formatting from the AI response
+        jsonString = jsonString.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+
+        try {
+            const parsedData = JSON.parse(jsonString);
+            console.log("✅ AI Extraction Successful! Nodes found:", parsedData.nodes.length);
+            return parsedData;
+        } catch (parseError) {
+            console.error("❌ JSON Parsing Error. The AI returned invalid JSON:", parseError.message);
+            console.error("Raw string was:", jsonString);
+            return null; // Return null so the backend can handle the failure gracefully
+        }
 
     } catch (error) {
         console.error("❌ AI Error:", error.message);

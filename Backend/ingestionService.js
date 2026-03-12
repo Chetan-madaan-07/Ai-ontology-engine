@@ -13,9 +13,9 @@ async function fetchAndCleanNews(topic) { // [cite: 54]
         throw new Error("Missing API Key");
     }
 
-    // Adding pageSize=5 so the LLM doesn't get overwhelmed [cite: 34]
-    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(topic)}&pageSize=5&apiKey=${apiKey}`;
-    console.log(`[STEP 2] Constructed NewsAPI URL.`);
+    const pageSize = 30; 
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(topic)}&pageSize=${pageSize}&apiKey=${apiKey}`;
+    console.log(`[STEP 2] Constructed NewsAPI URL with pageSize ${pageSize}.`);
 
     try {
         console.log("[STEP 3] Sending GET request to NewsAPI...");
