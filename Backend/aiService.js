@@ -17,32 +17,38 @@ async function extractOntology(text) {
             }
         });
 
+        // FIX: Upgraded prompt for Entity Resolution and Graph Limiting
         const prompt = `
-        You are an expert AI ontology extractor. 
-        Analyze the following text and extract entities and their relationships.
-        Entities: Location, Organization, Person, Concept.
+        You are an expert AI ontology extractor building a geopolitical intelligence graph.
+        Analyze the following text and extract the MOST CRITICAL entities and relationships.
+        Entities must be categorized strictly as: Location, Organization, Person, Concept.
+        
+        CRITICAL RULES:
+        1. MERGE SYNONYMS: Standardize names. Use "United States" instead of "US" or "USA". Use full official names for people and organizations.
+        2. LIMIT OUTPUT: Extract a maximum of 20 high-value nodes and 25 critical relationships. Do not overwhelm the graph.
+        3. CLEAN LABELS: Keep relationship labels short, uppercase, and with underscores (e.g., ALLIED_WITH, FUNDS, SANCTIONED).
+        
         Return ONLY a valid JSON object in this format:
         {
-          "nodes": [{"id": "Name", "group": "Category"}],
-          "links": [{"source": "A", "target": "B", "label": "RELATION"}]
+          "nodes": [{"id": "Standardized Name", "group": "Category"}],
+          "links": [{"source": "Standardized Name A", "target": "Standardized Name B", "label": "RELATION"}]
         }
         Text: ${text}`;
 
         console.log("AI is processing with gemini-2.5-flash... please wait.");
         const result = await model.generateContent(prompt);
+        
         let jsonString = result.response.text().trim();
-
-        // FIX: Strip potential Markdown formatting from the AI response
+        // Strip markdown backticks just in case
         jsonString = jsonString.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
 
         try {
             const parsedData = JSON.parse(jsonString);
-            console.log("✅ AI Extraction Successful! Nodes found:", parsedData.nodes.length);
+            console.log("✅ AI Extraction Successful! Nodes found:", parsedData.nodes?.length);
             return parsedData;
         } catch (parseError) {
-            console.error("❌ JSON Parsing Error. The AI returned invalid JSON:", parseError.message);
-            console.error("Raw string was:", jsonString);
-            return null; // Return null so the backend can handle the failure gracefully
+            console.error("❌ JSON Parsing Error:", parseError.message);
+            return null;
         }
 
     } catch (error) {
