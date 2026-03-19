@@ -2,7 +2,6 @@
 venv/
 env/
 .env
-.env.local
 
 # Python Cache
 __pycache__/
@@ -16,5 +15,3 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
-
-node_modules

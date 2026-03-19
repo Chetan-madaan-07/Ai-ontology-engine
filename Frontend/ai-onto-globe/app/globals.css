@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* --- Global Ontology Engine: Custom Slider Styling --- */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+}
+
+/* The Slider Track */
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: #334155; /* tailwind slate-700 */
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+/* The Slider Thumb */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #3b82f6; /* tailwind blue-500 */
+  border: 2px solid #0f172a; /* tailwind slate-900 */
+  cursor: pointer;
+  margin-top: -7px; /* Centers the thumb on the track */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s ease-in-out, background-color 0.1s ease-in-out;
+}
+
+/* Thumb Hover & Focus States */
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #60a5fa; /* tailwind blue-400 */
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+input[type=range]:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); /* subtle blue focus ring */
+}
+
+/* --- Global Ontology Engine: Custom Scrollbar Styling --- */
+/* Targets the global scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* The track (background) */
+::-webkit-scrollbar-track {
+  background: #0f172a; /* tailwind slate-900 */
+  border-radius: 4px;
+}
+
+/* The draggable thumb */
+::-webkit-scrollbar-thumb {
+  background: #475569; /* tailwind slate-600 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b; /* tailwind slate-500 */
+}
+
+/* For specifically thin scrollbars like our dynamic legend */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
