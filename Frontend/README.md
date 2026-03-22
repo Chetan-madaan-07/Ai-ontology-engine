@@ -6,10 +6,14 @@ This is the frontend component for the **Global Ontology Engine**, built on top 
 
 The frontend empowers users to interact with the backend API visually. It is built to:
 - Accept raw intelligence text or news articles and submit them to the backend API.
+- Fetch live news on a topic via the backend (`/api/news`), extracting real-time intelligence into a graph.
 - Render the resulting ontology (nodes and relationships) using an interactive 2D D3 force-directed graph (`react-force-graph-2d`).
 - Dynamically style nodes based on category classification (via hashed color mapping).
 - Provide real-time graph physics controls, allowing users to tweak D3 force parameters such as *Node Repulsion* and *Link Distance* via custom sliders.
 - Request an AI-generated analyst brief (situational report) based on the extracted graph data context, along with highlighted risks.
+- Monitor critical "High-Risk" entities or threats via the **Alert Stream** panel.
+- Trace the source of an entity or relationship using the **Evidence Panel**, which dynamically populates with the original news source or dataset link when a graph node is selected.
+- Query and retrieve nodes from the Neo4j database via the integrated **Search Graph** feature.
 
 ## Setup & Run Instructions
 
@@ -43,4 +47,4 @@ npm run dev
 
 The frontend application will compile and start. Once ready, open [http://localhost:3000](http://localhost:3000) in your web browser.
 
-You can now submit raw text intelligence into the dashboard and see the graph extract in real-time. Make sure your Python backend is also running and correctly configured to process the requests!
+You can now submit raw text intelligence or search live news within the dashboard and see the graph extract in real-time. Make sure your Python backend is also running and correctly configured to process the requests!
