@@ -94,14 +94,14 @@ const KnowledgeGraph = ({ data, repulsion = 30, linkDistance = 60, onNodeClick }
 
   useEffect(() => {
     if (fgRef.current) {
-      fgRef.current.d3Force('charge').strength(-repulsion * 2); // Increased repulsion slightly for readability
-      fgRef.current.d3Force('link').distance(linkDistance);
+      fgRef.current.d3Force('charge').strength(-repulsion * 4); // Increased repulsion slightly for readability
+      fgRef.current.d3Force('link').distance(linkDistance*1.2);
       fgRef.current.d3ReheatSimulation();
     }
   }, [repulsion, linkDistance, graphData]);
 
   return (
-    <div ref={containerRef} className="w-full h-full min-h-[500px] bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700">
+    <div ref={containerRef} className="w-full h-full  bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700">
       {graphData.nodes.length > 0 ? (
         <ForceGraph2D
           ref={fgRef} 
@@ -160,46 +160,53 @@ const KnowledgeGraph = ({ data, repulsion = 30, linkDistance = 60, onNodeClick }
             if (onNodeClick) onNodeClick(node);
           }}
           
-          // CUSTOM CANVAS DRAWING
+// CUSTOM CANVAS DRAWING FOR SOLID NODES + EXTERNAL TEXT
           nodeCanvasObject={(node, ctx, globalScale) => {
-            const label = node.name;
+            const label = node.name || "";
             
-            // Centrality visually applied here: scale font based on node.val
-            const scaledFontSize = (10 + ((node.val || 1) * 2)) / globalScale; 
-            
-            ctx.font = `${scaledFontSize}px Sans-Serif`;
-            const textWidth = ctx.measureText(label).width;
-            const bckgDimensions = [textWidth, scaledFontSize].map(n => n + scaledFontSize * 0.2); 
+            // Calculate a fixed radius. Centrality makes more connected nodes slightly bigger.
+            const radius = 4 + ((node.val || 1) * 0.5);
 
-            // Draw the main dark node background
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.9)'; 
-            ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+            // 1. Draw the solid circular node using its assigned color
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
+            ctx.fillStyle = node.color; 
+            ctx.fill();
 
-            // TASK 4: PREMIUM HOVER EFFECT (White Ring)
+            // TASK 4: PREMIUM HOVER EFFECT (White Circular Ring)
             if (node === hoverNode) {
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, radius + 2, 0, 2 * Math.PI, false);
               ctx.strokeStyle = '#ffffff'; 
-              ctx.lineWidth = 2 / globalScale; 
-              ctx.strokeRect(
-                node.x - bckgDimensions[0] / 2 - 2, 
-                node.y - bckgDimensions[1] / 2 - 2, 
-                bckgDimensions[0] + 4, 
-                bckgDimensions[1] + 4
-              );
+              ctx.lineWidth = 1; 
+              ctx.stroke();
             }
 
-            // Draw the node text
+            // 2. Draw the text slightly below the node
+            const fontSize = 4.5; // Fixed size in canvas units
+            ctx.font = `${fontSize}px Sans-Serif`;
             ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = node.color;
-            ctx.fillText(label, node.x, node.y);
+            ctx.textBaseline = 'top';
+            
+            // Add a subtle dark background behind text so the connecting lines do not cut through it
+            const textWidth = ctx.measureText(label).width;
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.fillRect(node.x - textWidth / 2 - 1, node.y + radius + 1, textWidth + 2, fontSize + 2);
 
-            node.__bckgDimensions = bckgDimensions; 
+            // Draw the actual text label
+            ctx.fillStyle = '#e2e8f0'; // Tailwind slate-200
+            ctx.fillText(label, node.x, node.y + radius + 2);
+
+            // Store the radius for the pointer area hover detection
+            node.__radius = radius; 
           }}
           
+          // UPDATE POINTER AREA TO MATCH NEW RADIUS
           nodePointerAreaPaint={(node, color, ctx) => {
             ctx.fillStyle = color;
-            const bckgDimensions = node.__bckgDimensions;
-            bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.__radius || 5, 0, 2 * Math.PI, false);
+            ctx.fill();
           }}
         />
       ) : (
