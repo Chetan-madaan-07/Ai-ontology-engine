@@ -6,7 +6,7 @@ import KnowledgeGraph from '../components/KnowledgeGraph';
 import CustomSlider from '../components/CustomSlider';
 import AlertStream from '../components/AlertStream';
 import EvidencePanel from '../components/EvidencePanel';
-import { Network, BrainCircuit, Activity, AlertCircle, Loader2, SlidersHorizontal, Search, Filter, Rss } from 'lucide-react';
+import { Network, BrainCircuit, Activity, AlertCircle, Loader2, SlidersHorizontal, Search, Filter, Rss, Layers } from 'lucide-react';
 
 // --- DYNAMIC COLOR HASHING FOR LEGEND ---
 const colorPalette = [
@@ -46,6 +46,9 @@ export default function Home() {
 
   // --- TASK 2: EVIDENCE PANEL STATE ---
   const [selectedNode, setSelectedNode] = useState(null);
+
+  // --- POPUP STATE ---
+  const [showLegend, setShowLegend] = useState(false);
 
   // Loading states
   const [isExtracting, setIsExtracting] = useState(false);
@@ -351,8 +354,8 @@ export default function Home() {
         </div>
 
         {/* Right Column: The Graph Visualization */}
-        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col sticky top-6 h-[calc(100vh-3rem)]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 shrink-0">
             <h2 className="text-lg font-semibold flex items-center gap-2 whitespace-nowrap">
               <Network className="w-5 h-5 text-emerald-400" />
               Ontology Visualization
@@ -394,7 +397,7 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="flex-1 rounded-lg overflow-hidden border border-slate-700 relative min-h-[500px]">
+          <div className="flex-1 rounded-lg overflow-hidden border border-slate-700 relative min-h-0">
             {/* TASK 2: Pass onNodeClick to KnowledgeGraph */}
             <KnowledgeGraph 
               data={filteredGraphData} 
@@ -403,18 +406,48 @@ export default function Home() {
               onNodeClick={handleNodeClick}
             />
             
+            {/* NEW BUBBLE POPUP FOR ENTITY TYPES */}
             {uniqueLabels.length > 0 && (
-              <div className="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-sm border border-slate-700 p-3 rounded-lg flex flex-col gap-2 text-xs max-h-48 overflow-y-auto custom-scrollbar">
-                <div className="text-slate-400 font-semibold mb-1 border-b border-slate-700 pb-1">Entity Types</div>
-                {uniqueLabels.map((label) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full shrink-0" 
-                      style={{ backgroundColor: getLabelColor(label) }}
-                    ></div> 
-                    <span className="truncate max-w-[120px]" title={label}>{label}</span>
+              <div className="absolute bottom-4 left-4 z-10 flex flex-col items-start gap-3">
+                
+                {/* The Popup Menu */}
+                {showLegend && (
+                  <div className="bg-slate-950/95 backdrop-blur-md border border-slate-700 p-4 rounded-xl shadow-2xl flex flex-col gap-2 text-xs max-h-56 overflow-y-auto custom-scrollbar transform transition-all duration-300 origin-bottom-left">
+                    <div className="text-slate-300 font-semibold mb-2 border-b border-slate-700 pb-2 flex justify-between items-center gap-6">
+                      Entity Types Legend
+                      <button 
+                        onClick={() => setShowLegend(false)} 
+                        className="text-slate-500 hover:text-rose-400 transition-colors"
+                        title="Close"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    {uniqueLabels.map((label) => (
+                      <div key={label} className="flex items-center gap-2.5">
+                        <div 
+                          className="w-3.5 h-3.5 rounded-full shrink-0 shadow-sm border border-slate-800" 
+                          style={{ backgroundColor: getLabelColor(label) }}
+                        ></div> 
+                        <span className="truncate max-w-[140px] text-slate-200 font-medium" title={label}>{label}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+                
+                {/* The Floating Bubble Button */}
+                <button 
+                  onClick={() => setShowLegend(!showLegend)}
+                  className={`flex items-center justify-center p-3 rounded-full shadow-lg border transition-all duration-300 hover:scale-105 active:scale-95 ${
+                    showLegend 
+                      ? 'bg-emerald-600 border-emerald-500 text-white shadow-emerald-900/50' 
+                      : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white'
+                  }`}
+                  title="Toggle Entity Legend"
+                >
+                  <Layers className="w-5 h-5" />
+                </button>
+                
               </div>
             )}
 
