@@ -148,29 +148,11 @@ export default function Home() {
   };
 
   // TASK 3: Hit Enter in search bar → call /api/search on the backend
-  const handleSearchKeyDown = async (e) => {
-    if (e.key !== 'Enter') return;
-    const query = searchQuery.trim();
-    if (!query) return;
-
-    console.log(`[page.js] Sending search query to backend: "${query}"`);
-    setIsSearchingBackend(true);
-    setError("");
-    setSelectedNode(null);
-
-    try {
-      const result = await searchGraph(query);
-      if (result.status === 'success' && result.data?.nodes?.length > 0) {
-        setGraphData(result.data);
-        console.log(`[page.js] Graph updated from backend search. Nodes: ${result.data.nodes.length}`);
-      } else {
-        // If backend search found nothing, fall back to local filtering (already handled by filteredGraphData)
-        console.log("[page.js] Backend search returned no results. Using local filter.");
-      }
-    } catch (err) {
-      console.error("[page.js] Backend search failed, falling back to local filter.", err);
-    } finally {
-      setIsSearchingBackend(false);
+  const handleSearchKeyDown = (e) => {
+    // Prevent any backend fetching or page reloads when hitting Enter.
+    // We are now relying entirely on the local real-time filtering!
+    if (e.key === 'Enter') {
+      e.preventDefault(); 
     }
   };
 
@@ -355,17 +337,17 @@ export default function Home() {
 
         {/* Right Column: The Graph Visualization */}
         <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col sticky top-6 h-[calc(100vh-3rem)]">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 shrink-0">
-            <h2 className="text-lg font-semibold flex items-center gap-2 whitespace-nowrap">
-              <Network className="w-5 h-5 text-emerald-400" />
-              Ontology Visualization
-              <span className="ml-2 text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded-md">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-4 gap-4 shrink-0 flex-wrap"> 
+            <h2 className="text-lg font-semibold flex flex-wrap items-center gap-2">
+              <Network className="w-5 h-5 text-emerald-400 shrink-0" />
+              <span>Ontology Visualization</span>
+              <span className="ml-0 sm:ml-2 text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded-md whitespace-nowrap">
                 Nodes: {filteredGraphData.nodes.length} | Edges: {filteredGraphData.edges.length}
               </span>
             </h2>
 
             {/* TASK 3: Search and Filter UI */}
-            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto flex-wrap">
               <div className="relative">
                 {isSearchingBackend ? (
                   <Loader2 className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 animate-spin" />
@@ -398,6 +380,16 @@ export default function Home() {
           </div>
           
           <div className="flex-1 rounded-lg overflow-hidden border border-slate-700 relative min-h-0">
+
+            {/* Added: Overlay message when search yields no results */}
+            {graphData.nodes && graphData.nodes.length > 0 && filteredGraphData.nodes.length === 0 && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-sm">
+                <Search className="w-12 h-12 text-slate-600 mb-3" />
+                <p className="text-lg font-medium text-slate-300">No entity found</p>
+                <p className="text-sm text-slate-500 mt-1">The node you are searching for does not exist in the extracted graph.</p>
+              </div>
+            )}
+
             {/* TASK 2: Pass onNodeClick to KnowledgeGraph */}
             <KnowledgeGraph 
               data={filteredGraphData} 
