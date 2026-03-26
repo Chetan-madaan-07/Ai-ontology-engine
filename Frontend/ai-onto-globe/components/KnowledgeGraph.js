@@ -118,9 +118,12 @@ const KnowledgeGraph = ({ data, repulsion = 30, linkDistance = 60, onNodeClick }
           graphData={graphData}
           nodeLabel="name"
           nodeColor="color"
-          linkColor={() => 'rgba(255,255,255,0.2)'}
-          linkDirectionalArrowLength={3.5}
-          linkDirectionalArrowRelPos={1}
+          
+          // --- FIXED: ARROW VISIBILITY ---
+          linkColor={() => 'rgba(255,255,255,0.3)'}
+          linkDirectionalArrowLength={6}             // Larger arrow
+          linkDirectionalArrowRelPos={0.95}          // FIXED: Pushed the arrow right near the end of the line
+          linkDirectionalArrowColor={() => '#cbd5e1'} // Bright slate-300 color to pop against dark background
           
           // --- EDGE TEXT RENDERING ---
           linkCanvasObjectMode={() => 'after'}

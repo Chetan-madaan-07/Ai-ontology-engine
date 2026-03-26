@@ -36,9 +36,10 @@ export default function Home() {
   const [isSearchingBackend, setIsSearchingBackend] = useState(false);
 
   // --- GRAPH PHYSICS STATE ---
-  const [repulsion, setRepulsion] = useState(30);
-  const [linkDistance, setLinkDistance] = useState(40);
-  const [isPhysicsUnlocked, setIsPhysicsUnlocked] = useState(false); // NEW STATE
+  // FIXED: Cranked up initial repulsion and distance for a wider start
+  const [repulsion, setRepulsion] = useState(100); 
+  const [linkDistance, setLinkDistance] = useState(80);
+  const [isPhysicsUnlocked, setIsPhysicsUnlocked] = useState(false); 
   
   // --- TASK 1: NEWS STATE ---
   const [newsTopic, setNewsTopic] = useState("");
@@ -308,7 +309,6 @@ export default function Home() {
           />
 
           {/* Graph Physics Controls */}
-          {/* Added min-h-[220px] and flex-col to prevent the absolute overlay from being cut off */}
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg relative overflow-hidden min-h-[220px] flex flex-col">
             <h2 className="text-lg font-semibold mb-3 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
@@ -374,10 +374,7 @@ export default function Home() {
           </div>
 
           {/* Alert Stream Panel */}
-          <AlertStream 
-            nodes={filteredGraphData.nodes} 
-            articles={articles} 
-          />
+          <AlertStream nodes={filteredGraphData.nodes} articles={articles} />
 
         </div>
 
